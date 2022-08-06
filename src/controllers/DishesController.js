@@ -1,10 +1,18 @@
 const knex = require("../database/knex");
+const DiskStorage = require("../providers/DiskStorage");
 
 class DishesController {
   async create(request, response) {
     const { title, description, category, price, amount, ingredients } = request.body;
 
+    const { filename: imageFilename } = request.file;
+
+    const diskStorage = new DiskStorage();
+
+    const filename = await diskStorage.saveFile(imageFilename);
+
     const dish_id = await knex("dishes").insert({
+      image: filename,
       title,
       description,
       category,
@@ -30,8 +38,19 @@ class DishesController {
     const { title, description, category, price, amount, ingredients } = request.body;
     const { id } = request.params;
 
+    const { filename: imageFilename } = request.file;
+
+    const diskStorage = new DiskStorage();
+
     const dish = await knex("dishes").where({ id }).first();
 
+    if (book.image) {
+      await diskStorage.deleteFile(dish.image);
+    }
+
+    const filename = await diskStorage.saveFile(imageFilename);
+
+    dish.image = filename;
     dish.title = title ?? dish.title;
     dish.description = description ?? dish.description;
     dish.category = category ?? dish.category;
@@ -72,6 +91,7 @@ class DishesController {
         .whereLike("dishes.title", `%${title}%`)
         .whereIn("name", filterIngredients)
         .innerJoin("dishes", "dishes.id", "ingredients.dish_id")
+        .groupBy("dishes.id")
         .orderBy("dishes.title")
     } else {
       dishes = await knex("dishes")
