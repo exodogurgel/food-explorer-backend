@@ -3,7 +3,7 @@ const DiskStorage = require("../providers/DiskStorage");
 
 class DishesController {
   async create(request, response) {
-    const { title, description, category, price, amount, ingredients } = request.body;
+    const { title, description, category, price, ingredients } = request.body;
 
     const { filename: imageFilename } = request.file;
 
@@ -16,8 +16,7 @@ class DishesController {
       title,
       description,
       category,
-      price,
-      amount
+      price
     });
 
     if (ingredients.length > 0) {
@@ -35,7 +34,7 @@ class DishesController {
   }
 
   async update(request, response) {
-    const { title, description, category, price, amount, ingredients } = request.body;
+    const { title, description, category, price, ingredients } = request.body;
     const { id } = request.params;
 
     const { filename: imageFilename } = request.file;
@@ -55,7 +54,6 @@ class DishesController {
     dish.description = description ?? dish.description;
     dish.category = category ?? dish.category;
     dish.price = price ?? dish.price;
-    dish.amount = amount ?? dish.amount;
 
     await knex("dishes").where({ id }).update(dish);
     await knex("dishes").where({ id }).update('updated_at', knex.fn.now());
