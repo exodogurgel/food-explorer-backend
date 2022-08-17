@@ -43,7 +43,7 @@ class DishesController {
 
     const dish = await knex("dishes").where({ id }).first();
 
-    if (book.image) {
+    if (dish.image) {
       await diskStorage.deleteFile(dish.image);
     }
 
