@@ -19,16 +19,28 @@ class DishesController {
       price
     });
 
-    if (ingredients.length > 0) {
-      const ingredientsInsert = ingredients.map(ingredient => {
+    const hasOnlyOneIngredient = typeof(ingredients) === "string";
+
+    let ingredientsInsert
+    if (hasOnlyOneIngredient) {
+      ingredientsInsert = {
+        name: ingredients,
+        dish_id
+      }
+
+    } else if (ingredients.length > 1) {
+      ingredientsInsert = ingredients.map(ingredient => {
         return {
-          dish_id,
-          name : ingredient
+          name : ingredient,
+          dish_id
         }
       });
 
-      await knex("ingredients").insert(ingredientsInsert);
+    } else {
+      return 
     }
+
+    await knex("ingredients").insert(ingredientsInsert);
 
     return response.status(201).json();
   }
@@ -85,6 +97,10 @@ class DishesController {
         .select([
           "dishes.id",
           "dishes.title",
+          "dishes.description",
+          "dishes.category",
+          "dishes.price",
+          "dishes.image",
         ])
         .whereLike("dishes.title", `%${title}%`)
         .whereIn("name", filterIngredients)
@@ -126,7 +142,7 @@ class DishesController {
 
     return response.status(200).json({
       ...dish,
-      ingredients
+      ingredients,
     });
   }
 }
