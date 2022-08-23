@@ -70,8 +70,16 @@ class DishesController {
     await knex("dishes").where({ id }).update(dish);
     await knex("dishes").where({ id }).update('updated_at', knex.fn.now());
 
-    if (ingredients.length > 0) {
-      const ingredientsInsert = ingredients.map(ingredient => {
+    const hasOnlyOneIngredient = typeof(ingredients) === "string";
+
+    let ingredientsInsert
+    if (hasOnlyOneIngredient) {
+      ingredientsInsert = {
+        dish_id: dish.id,
+        name: ingredients
+      }
+    } else if (ingredients.length > 1) {
+      ingredientsInsert = ingredients.map(ingredient => {
         return {
           dish_id: dish.id,
           name : ingredient
